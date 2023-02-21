@@ -5,7 +5,7 @@ Group project
 Syscall
  By: Julien Barbier
  Weight: 10
- Project to be done in teams of 2 people (your team: Nneoma Obidegwu, Vik-Akachi Ibe)
+ Project to be done in teams of 2 people (your team: Habtish Hailemariam, Vik-Akachi Ibe)
  Project will start Feb 8, 2023 6:00 AM, must end by Feb 23, 2023 6:00 AM
  Checker will be released at Feb 22, 2023 1:12 AM
  An auto review will be launched at the deadline
