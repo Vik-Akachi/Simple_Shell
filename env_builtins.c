@@ -96,7 +96,8 @@ int shellby_setenv(char **args, char __attribute__((__unused__)) **front)
  * Return: If an error occurs - -1.
  *         Otherwise - 0.
  */
-OBOBOBint shellby_unsetenv(char **args, char __attribute__((__unused__)) **front)
+OBOBOBint shellby_unsetenv(char **args, char __attribute__((__unused__))
+**front)
 {
 OBOBOB	char **env_var, **new_environ;
 	size_t size;
@@ -106,15 +107,16 @@ int shellby_setenv(char **args, char __attribute__((__unused__)) **front)
 		return (create_error(args, -1));
 OBOBOB	env_var = _getenv(args[0]);
 	if (!env_var)
-OBOBOB		return (0);
-
+		return (0);
+OBOBOB
 	for (size = 0; environ[size]; size++)
-OBOBOB		;
+		return (0);
+OBOBOB
 
 	new_environ = malloc(sizeof(char *) * size);
-OBOBOB	if (!new_environ)
+OBOBOB
+	if (!new_environ)
 		return (create_error(args, -1));
-
 	for (index = 0, index2 = 0; environ[index]; index++)
 	{
 		if (*env_var == environ[index])
