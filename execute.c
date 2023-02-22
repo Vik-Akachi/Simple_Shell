@@ -1,68 +1,47 @@
-#include "commands.h"
-#include "general.h"
-#include "memory.h"
-
+#include "shell.h"
 /**
- * execute - Execute a command in other process
- *
- * @command: Command to execute
- * @arguments: Arguments of the @command
- * @info: General info about the shell
- * @buff: Line readed
- **/
-void execute(char *command, char **arguments, general_t *info, char *buff)
+ * execute - execute a command with its entire path variables.
+ * @data: a pointer to the program's data
+ * Return: If sucess returns zero, otherwise, return -1.
+ */
+int execute(data_of_program *data)
 {
-	int status;
-	pid_t pid;
+	int retval = 0, status;
+	pid_t pidd;
 
-	pid = fork();
-	if (pid == 0)
-	{
-		execve(command, arguments, environ);
-		perror("./sh");
+	/* check for program in built ins */
+	retval = builtins_list(data);
+	if (retval != -1)/* if program was found in built ins */
+		return (retval);
 
-		free_memory_pp((void *) arguments);
-
-		if (info->value_path != NULL)
-		{
-			free(info->value_path);
-			info->value_path = NULL;
+	/* check for program file system */
+	retval = find_program(data);
+	if (retval)
+	{/* if program not found */
+		return (retval);
+	}
+	else
+	{/* if program was found */
+		pidd = fork(); /* create a child process */
+		if (pidd == -1)
+		{ /* if the fork call failed */
+			perror(data->command_name);
+			exit(EXIT_FAILURE);
 		}
-
-		free(info);
-		free(buff);
-		exit(1);
+		if (pidd == 0)
+		{/* I am the child process, I execute the program*/
+			retval = execve(data->tokens[0], data->tokens, data->env);
+			if (retval == -1) /* if error when execve*/
+				perror(data->command_name), exit(EXIT_FAILURE);
+		}
+		else
+		{/* I am the father, I wait and check the exit status of the child */
+			wait(&status);
+			if (WIFEXITED(status))
+				errno = WEXITSTATUS(status);
+			else if (WIFSIGNALED(status))
+				errno = 128 + WTERMSIG(status);
+		}
 	}
-	else if (pid > 0)
-	{
-		waitpid(pid, &status, 0);
-		if (WIFEXITED(status))
-			info->status_code = WEXITSTATUS(status);
-	}
-}
-
-
-/**
- * current_directory - Execute the command if the order require
- *
- * @cmd: Command to execute
- * @arguments: Arguments of the @cmd
- * @buff: Line readed
- * @info: General info about the shell
- *
- * Return: Status of the operations
- **/
-int current_directory(char *cmd, char **arguments, char *buff, general_t *info)
-{
-
-	if (info->is_current_path == _FALSE)
-		return (_FALSE);
-
-	if (is_executable(cmd) == PERMISSIONS)
-	{
-		execute(cmd, arguments, info, buff);
-		return (_TRUE);
-	}
-
-	return (_FALSE);
+	return (0);
 }
